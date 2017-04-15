@@ -10,7 +10,7 @@ Busca Binária em lista duplamente encadeada? Oi? Meu pai? Romero Brito? (Mandei
   > "A operação de busca deve retornar o valor da entrada hash que o elemento buscado se encontra ou -1 caso o elemento não
 	  foi encontrado."     
     
-Mas então desconsideramos a sua posicão na lista encadeada dupla? Se devemos chamar a função várias vezes, retornamos varios valores? Ou imprimimos eles na tela? Ta foda esses pdfs mal explicados.... (*cough* Mello *cough*)
+Mas então desconsideramos a sua posicão na lista encadeada dupla? Se devemos chamar a função várias vezes, retornamos varios valores? Ou imprimimos eles na tela? Ta foda esses pdfs mal explicados.... (*cough* Mello *cough* ai meu cu *cough*)
   
 ###### INSERÇÃO:
 
