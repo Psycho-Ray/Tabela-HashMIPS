@@ -5,7 +5,7 @@ Uma tabela Hash implementada em Assembly MIPS para a matéria de Organização d
 
 ###### BUSCA:
 
-Busca Binária em lista duplamente encadeada? Oi? Meu pai? Romero Brito? (Mandei e-mail sobre isso*) 
+~~Busca Binária em lista duplamente encadeada? Oi? Meu pai? Romero Brito? (Mandei e-mail sobre isso*) ~~(Não há mais busca binária no trabalho).
 
   > "A operação de busca deve retornar o valor da entrada hash que o elemento buscado se encontra ou -1 caso o elemento não
 	  foi encontrado."     
