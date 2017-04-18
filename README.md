@@ -24,8 +24,11 @@ No final da função, deêm um "j menu" (jump para o menu).
 
 Qualquer registrador que forem usar, com exceção dos temporários, terá que primeiro ser empilhado na stack e depois desempilhado.
 
+Para chamar uma função modularizada, tem que chamar com JAL (jump and link) para poder retornar para a sua função.
+
 ### Registradores fixos:
 
 $s1 - Input do usuário no menu
+
 $s0 - Endereço do primeiro nó, já apontando pro valor do meio (o valor).
 
