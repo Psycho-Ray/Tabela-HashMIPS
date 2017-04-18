@@ -40,6 +40,11 @@ invalidInput:
 	syscall
 	j menu		# voltamos ao menu
 
+	
+leInt:		# lê um inteiro que fica em $v0.
+	li $v0, 5	# lê inteiro
+	syscall
+	jr $ra
 
 # Funções Placeholders, depois coloquem as suas partes aqui.
 
