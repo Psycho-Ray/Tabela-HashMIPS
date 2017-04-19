@@ -14,10 +14,39 @@
 .globl main
 
 main:
-	li $v0, 4	# imprime string
+	li $v0, 4		# imprime string
 	la $a0, strInicio
-
 	syscall
+	
+	# aloca as 16 posições do vetor
+	li $v0, 9		# sbrk
+	li $a0, 64		# 64 = 16 * 4(tam de um end) bytes
+	syscall
+	move $s0, $v0		# $s0 = malloc(16*sizeof(nó*))
+	
+	li $t0, 0		# i = 0
+	move $t1, $s0 		# t1 = vetor[0]
+	j forInicializa
+	
+forInicializa:
+	# para cada uma ds posições do vetor, alocamos um nó vazio. $t0 = i, $t1 = vetor[0] inicialmente
+	bge $t0, 16, menu	# while (i < 16)
+	li $v0, 9		# sbrk
+	li $a0, 12		# 12 = no anterior(end = 4) + inteiro(word = 4) + proximo no(end = 4)
+	syscall			# $v0 = malloc(sizeof(nó)
+	
+	move $t2, $v0		# t2 = novo_no
+
+	sw $t2, 0($t1)		# vetor[i] = novo_no
+	addi $t0, $t0, 1	# i++
+	addi $t1, $t1, 4	# t1 = vetor[i]
+	
+	li $t3, -1		# $t3 = flag para não existe = -1
+	sw $zero, 0($t2)	# no->anterior = zero
+	sw $t3, 4($t2)		# no->valor = -1
+	sw $zero, 8($t2)	# no->prox = zero
+	j forInicializa		
+	
 
 menu:
 	li $v0, 4	# imprime string
@@ -39,7 +68,6 @@ invalidInput:
 	la $a0, strInvalidInput
 	syscall
 	j menu		# voltamos ao menu
-
 	
 leInt:		# lê um inteiro que fica em $v0.
 	li $v0, 5	# lê inteiro
@@ -60,15 +88,13 @@ insercao:
 
     move $a0, $v0 #carrega como argumento0 de mod o valor lido
     jal mod
-
-	j endProgram
+    j endProgram
 
 remocao:
-    li $v0, 4 #imprimir string que pede valor
+	li $v0, 4 #imprimir string que pede valor
     la $a0, strRemove
     syscall
-
-	j endProgram
+    j endProgram
 
 busca:
 	j endProgram
