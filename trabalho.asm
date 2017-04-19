@@ -36,6 +36,7 @@ forInicializa:
 	syscall			# $v0 = malloc(sizeof(nó)
 	
 	move $t2, $v0		# t2 = novo_no
+	
 
 	sw $t2, 0($t1)		# vetor[i] = novo_no
 	addi $t0, $t0, 1	# i++
