@@ -4,15 +4,15 @@
 .data
 .align 0
 	strNewline: .asciiz "\n"
-    strInsert: .asciiz "\nDigite o valor a ser inserido: "
-    strRemove: .asciiz "\nDigite o valor a ser removido: "
-    strInicio: .asciiz "Tabela Hash de inteiros implementada em MIPS Assembly.\n"
-    strOpcao: .asciiz  "Digite 1 para a inserção de um número, 2 para remoção, 3 para busca, 4 para a visualazição da tabela e 5 para sair do programa.\n"
-    strFimImpressao: .asciiz "Fim da impressão, voltando ao menu\n"
-    strInvalidInput: .asciiz "Opçãoo não válida digitada, favor digitar um inteiro de 1 a 5 conforme as opções fornecidas.\n"
-    strExit:.asciiz "Finalizando programa\n"
-    strInsertError: .asciiz "O número digitado já foi inserido.\n"
-    
+	strInsert: .asciiz "\nDigite o valor a ser inserido: "
+	strRemove: .asciiz "\nDigite o valor a ser removido: "
+	strInicio: .asciiz "Tabela Hash de inteiros implementada em MIPS Assembly.\n"
+	strOpcao: .asciiz  "Digite 1 para a inserção de um número, 2 para remoção, 3 para busca, 4 para a visualazição da tabela e 5 para sair do programa.\n"
+	strFimImpressao: .asciiz "Fim da impressão, voltando ao menu\n"
+	strInvalidInput: .asciiz "Opçãoo não válida digitada, favor digitar um inteiro de 1 a 5 conforme as opções fornecidas.\n"
+	strExit:.asciiz "Finalizando programa\n"
+	strInsertError: .asciiz "O número digitado já foi inserido.\n"
+	
 
 .text
 .globl main
@@ -71,71 +71,71 @@ menu:
 
 insercao:
 
-    # $t0 = valor a ser inserido
-    # $t1 = posicao de insercao no vetor
-    # $t2 = aux(16)
-    # $t3 = $s0 = comeco do vetor
-    # $t4 = valores da lista
-    # $t5 = nó criado
-    # $t6 = endereco do no anterior
+	# $t0 = valor a ser inserido
+	# $t1 = posicao de insercao no vetor
+	# $t2 = aux(16)
+	# $t3 = $s0 = comeco do vetor
+	# $t4 = valores da lista
+	# $t5 = nó criado
+	# $t6 = endereco do no anterior
 
-    li $v0, 4			 #imprimir string que pede valor
-    la $a0, strInsert
-    syscall
+	li $v0, 4			 #imprimir string que pede valor
+	la $a0, strInsert
+	syscall
 
-    jal leInt 			#inteiro lido em $v0
-    move $t0, $v0		#move inteiro lido para $t0
+	jal leInt 			#inteiro lido em $v0
+	move $t0, $v0		#move inteiro lido para $t0
 
-    #fazer mod
-    li $t2, 16
-    div $t0, $t2		#$t0/16
-    mfhi $t1 			# $t1 = $t0 % 16
-    
-    #acessar posicao do vetor
-    move $t3, $s0
-    mul $t1, $t1, 4 	#quantidade de bytes de deslocamento até a posicao desejada
-    
-    add $t3, $t3, $t1 	#posicao de insercao
+	#fazer mod
+	li $t2, 16
+	div $t0, $t2		#$t0/16
+	mfhi $t1 			# $t1 = $t0 % 16
+	
+	#acessar posicao do vetor
+	move $t3, $s0
+	mul $t1, $t1, 4 	#quantidade de bytes de deslocamento até a posicao desejada
+	
+	add $t3, $t3, $t1 	#posicao de insercao
 
-    #percorrer lista
-    lw $t4, 4($t3)		# pega valor do no
-    findPlace:
-        bge $zero, $t4, found 	#while no->valor >= 0
-        bge $t4, $t0, found 	#while no->valor < my_valor
-        lw $t3, 8($t3) 	# vai para o prox no
-        lw $t4, 4($t3) 	# pega valor do prox no
-        j findPlace
+	#percorrer lista
+	lw $t4, 4($t3)		# pega valor do no
+	findPlace:
+		bge $zero, $t4, found 	#while no->valor >= 0
+		bge $t4, $t0, found 	#while no->valor < my_valor
+		lw $t3, 8($t3) 	# vai para o prox no
+		lw $t4, 4($t3) 	# pega valor do prox no
+		j findPlace
 
-    #inserir
-    found:
-        beq $t4, $t0, insertError #número repetido
+	#inserir
+	found:
+		beq $t4, $t0, insertError #número repetido
 
-        #inserção válida
-        #criar novo nó
-        li $v0, 9		# sbrk
+		#inserção válida
+		#criar novo nó
+		li $v0, 9		# sbrk
 	li $a0, 12			# 12 = no anterior(end = 4) + inteiro(word = 4) + proximo no(end = 4)
 	syscall				# $v0 = malloc(sizeof(nó))
 
 	move $t5, $v0		# t5 = novo_no
 	
-    #atribuir valor ao nó
-    sw $t0, 4($t5)
-        
-    #apontar da forma correta
-    lw $t6, 0($t3) 		#$t6 eh o no anterior
-        
-    sw $t5, 0($t3) 		#aponta #t3 para novo_no
-    sw $t5, 8($t6) 		#aponta anterior para novo_no
-    sw $t3, 8($t5) 		#aponta novo_no para $t3
-    sw $t6, 0($t5) 		#aponta novo_no para anterior
+	#atribuir valor ao nó
+	sw $t0, 4($t5)
+		
+	#apontar da forma correta
+	lw $t6, 0($t3) 		#$t6 eh o no anterior
+		
+	sw $t5, 0($t3) 		#aponta #t3 para novo_no
+	sw $t5, 8($t6) 		#aponta anterior para novo_no
+	sw $t3, 8($t5) 		#aponta novo_no para $t3
+	sw $t6, 0($t5) 		#aponta novo_no para anterior
 
-    j menu
+	j menu
 
 remocao:
 	li $v0, 4 			#imprimir string que pede valor
-    la $a0, strRemove
-    syscall
-    j menu
+	la $a0, strRemove
+	syscall
+	j menu
 
 busca:
 	j menu
@@ -179,7 +179,7 @@ endProgram:
 	syscall
 
 insertError:
-    li $v0, 4			# imprime string
+	li $v0, 4			# imprime string
 	la $a0, strInsertError
 	syscall
 	j menu				# voltamos ao menu
