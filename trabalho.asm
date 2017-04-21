@@ -3,11 +3,15 @@
 
 .data
 .align 0
-	strNewline: .asciiz "\n"
-	strInsert: .asciiz "\nDigite o valor a ser inserido: "
-	strRemove: .asciiz "\nDigite o valor a ser removido: "
-	strInicio: .asciiz "Tabela Hash de inteiros implementada em MIPS Assembly.\n"
-	strOpcao: .asciiz  "Digite 1 para a inserção de um número, 2 para remoção, 3 para busca, 4 para a visualazição da tabela e 5 para sair do programa.\n"
+	strNewline:	.asciiz "\n"
+	strInsert:	.asciiz "\nDigite o valor a ser inserido: "
+	strRemove:	.asciiz "\nDigite o valor a ser removido: "
+	strInicio:	.asciiz "Tabela Hash de inteiros implementada em MIPS Assembly.\n"
+	strOpcao:	.asciiz  "Digite 1 para a inserção de um número, 2 para remoção, 3 para busca, 4 para a visualazição da tabela e 5 para sair do programa.\n"
+	strInicioImpressao:	.asciiz "\nImpressão da Tabela Hash\n"
+	strInicioLinhaImpressao:	.asciiz "Linha["
+	strFimLinhaImpressao:	.asciiz "]: "
+	strLinhaVaziaImpressao:	.asciiz " **Linha Vazia**"
 	strFimImpressao: .asciiz "Fim da impressão, voltando ao menu\n"
 	strInvalidInput: .asciiz "Opçãoo não válida digitada, favor digitar um inteiro de 1 a 5 conforme as opções fornecidas.\n"
 	strExit:.asciiz "Finalizando programa\n"
@@ -146,17 +150,41 @@ busca:
 	j menu
 
 impressao:
-	la $t0, 0($s0) 		# t0 = vetor[0]
-	li $t1, 0			# t1 = i = 0
+	# $t0 = posição atual no vetor
+	# $t1 = i
+	# t2 = no_atual
+	# t3 = no_atual->valor
+	move $t0, $s0		# t0 = vetor[0]
+	li $t1, 0			# i = 0
+	li $v0, 4			# print string
+	la $a0, strInicioImpressao
+	syscall				# printf("\nImpressão da Tabela Hash\n")
+	
+# Percorremos a cada posicao (0 à 15) do vetor
 forLoopImpressao:
-	bge $t1, 16, fimImpressao
-	lw $t2, 4($t1)		# t2 = valor da lista duplamente encadeada
-	beq $t2, -1, endLinhaImpressao # while (t2 != -1)
+	bge $t1, 16, fimImpressao	# while (i < 16)
+	lw $t2, 0($t0)		# t2 = vetor[i] = no_atual
+	
+	# printf("Linha[%d]", i)
+	li $v0, 4			# print string
+	la $a0, strInicioLinhaImpressao
+	syscall				
 	li $v0, 1			# print int
-	move $a0, $t2
-	syscall				# imprimos o inteiro
-	lw $t1, 8($t2)		# t0 = t0->proximo_nó
-	addi $t1, $t1, 1
+	move $a0, $t1		# t1 = posicao atual do vetor
+	syscall
+	li $v0, 4			# print string
+	la $a0, strFimLinhaImpressao
+	syscall				
+	
+	# Imprimir todos os nós de uma lista duplamente encadeada, até encontrar o fim (valor = -1)
+	LoopImpressaoNo:
+		lw $t3, 4($t2)	# t2 = valor da lista duplamente encadeada
+		beq $t3, -1, endLinhaImpressao # while (t2 != -1)
+		li $v0, 1		# print int
+		move $a0, $t3		
+		syscall			# printf("%d", no->valor)
+		lw $t2, 8($t2)	# t0 = t0->proximo_nó
+		j LoopImpressaoNo	# Vamos para o próximo nó
 	j forLoopImpressao
 	
 endLinhaImpressao:
@@ -164,7 +192,10 @@ endLinhaImpressao:
 	li $v0, 4			# print string
 	la $a0, strNewline
 	syscall
-	j forLoopImpressao	# voltamos para imprimir a próxima linha da hash
+	# atualizamos o próximo nó
+	addi $t1, $t1, 1	# i++
+	addi $t0, $t0, 4	# t0 tem o endereco do próximo nó
+	j forLoopImpressao	# voltamos para imprimir a próxima linha da Hash.
 	
 fimImpressao:
 	li $v0, 4			# print string
