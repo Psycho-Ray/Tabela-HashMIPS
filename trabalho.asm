@@ -33,9 +33,11 @@ main:
 	j forInicializa
 	
 forInicializa:
-	# para cada uma ds posições do vetor, alocamos um nó vazio. $t0 = i, $t1 = vetor[0] inicialmente
+	# Para cada uma ds posições do vetor, alocamos um nó vazio. 
+	# $t0 = i
+	# $t1 = vetor[0] inicialmente
 	bge $t0, 16, menu	# while (i < 16)
-	li $v0, 9			# sbrk
+	li $v0, 9			# \\ sbrk
 	li $a0, 12			# 12 = no anterior(end = 4) + inteiro(word = 4) + proximo no(end = 4)
 	syscall				# $v0 = malloc(sizeof(nó))
 
@@ -79,29 +81,32 @@ insercao:
 	# $t5 = nó criado
 	# $t6 = endereco do no anterior
 
-	li $v0, 4			 #imprimir string que pede valor
+	li $v0, 4			 # imprimir string que pede valor
 	la $a0, strInsert
-	syscall
+	syscall			
 
-	jal leInt 			#inteiro lido em $v0
-	move $t0, $v0		#move inteiro lido para $t0
+	jal leInt 			# inteiro lido em $v0
+	move $t0, $v0		# move inteiro lido para $t0
 
 	#fazer mod
 	li $t2, 16
-	div $t0, $t2		#$t0/16
+	div $t0, $t2		# $t0/16
 	mfhi $t1 			# $t1 = $t0 % 16
 	
 	#acessar posicao do vetor
 	move $t3, $s0
-	mul $t1, $t1, 4 	#quantidade de bytes de deslocamento até a posicao desejada
+	mul $t1, $t1, 4 	# quantidade de bytes de deslocamento até a posicao desejada
 	
-	add $t3, $t3, $t1 	#posicao de insercao
+	add $t3, $t3, $t1 	# posicao de insercao
+	lw $t4, 0($t3)
 
 	#percorrer lista
-	lw $t4, 4($t3)		# pega valor do no
+	addi $t4, $t4, 4	# pega valor do no
+	lw $t4, 0($t4)			# t4 = nó
+
 	findPlace:
-		bge $zero, $t4, found 	#while no->valor >= 0
-		bge $t4, $t0, found 	#while no->valor < my_valor
+		blt $t4, $zero, found 	# while no->valor >= 0
+		bge $t4, $t0, found 	# while no->valor < my_valor
 		lw $t3, 8($t3) 	# vai para o prox no
 		lw $t4, 4($t3) 	# pega valor do prox no
 		j findPlace
@@ -110,9 +115,9 @@ insercao:
 	found:
 		beq $t4, $t0, insertError #número repetido
 
-		#inserção válida
-		#criar novo nó
-		li $v0, 9		# sbrk
+	# inserção válida
+	# criar novo nó
+	li $v0, 9			# sbrk
 	li $a0, 12			# 12 = no anterior(end = 4) + inteiro(word = 4) + proximo no(end = 4)
 	syscall				# $v0 = malloc(sizeof(nó))
 
