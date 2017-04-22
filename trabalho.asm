@@ -22,18 +22,18 @@
 .globl main
 
 main:
-	li $v0, 4		# imprime string
+	li $v0, 4				# imprime string
 	la $a0, strInicio
 	syscall
 
 	# aloca as 16 posições do vetor
-	li $v0, 9		# sbrk
-	li $a0, 64		# 64 = 16 * 4(tam de um end) bytes
+	li $v0, 9				# sbrk
+	li $a0, 64				# 64 = 16 * 4(tam de um end) bytes
 	syscall
-	move $s0, $v0		# $s0 = malloc(16*sizeof(nó*))
+	move $s0, $v0			# $s0 = malloc(16*sizeof(nó*))
 
-	li $t0, 0		# i = 0
-	move $t1, $s0 		# t1 = vetor[0]
+	li $t0, 0				# i = 0
+	move $t1, $s0 			# t1 = vetor[0]
 	j forInicializa
 	
 forInicializa:
@@ -41,10 +41,10 @@ forInicializa:
 	# $t0 = i
 	# $t1 = vetor[0] inicialmente
 	
-	bge $t0, 16, menu	# while (i < 16)
-	li $v0, 9			# \\ sbrk
-	li $a0, 12			# 12 = no anterior(end = 4) + inteiro(word = 4) + proximo no(end = 4)
-	syscall				# $v0 = malloc(sizeof(nó))
+	bge $t0, 16, menu		# while (i < 16)
+	li $v0, 9				# sbrk
+	li $a0, 12				# 12 = no anterior(end = 4) + inteiro(word = 4) + proximo no(end = 4)
+	syscall					# $v0 = malloc(sizeof(nó))
 
 	move $t2, $v0			# t2 = novo_no
 
@@ -52,26 +52,26 @@ forInicializa:
 	addi $t0, $t0, 1		# i++
 	addi $t1, $t1, 4		# t1 = vetor[i]
 
-	li $t3, -1			# $t3 = flag para não existe = -1
+	li $t3, -1				# $t3 = flag para não existe = -1
 	sw $zero, 0($t2)		# no->anterior = zero
 	sw $t3, 4($t2)			# no->valor = -1
 	sw $zero, 8($t2)		# no->prox = zero
 	j forInicializa
 
 menu:
-	li $v0, 4		# imprime string
+	li $v0, 4				# imprime string
 	la $a0, strOpcao
 	syscall
-	li $v0, 5		# ler inteiro
-	syscall 		# numero digitado em $v0
-	move $s1, $v0		# guardando o numero em s1
+	li $v0, 5				# ler inteiro
+	syscall 				# numero digitado em $v0
+	move $s1, $v0			# guardando o numero em s1
 
 	beq $s1, +1, insercao
 	beq $s1, +2, remocao
 	beq $s1, +3, busca
 	beq $s1, +4 impressao
 	beq $s1, +5, endProgram
-	j invalidInput		# se chegar aqui, o usuario digitou algum número não valido
+	j invalidInput			# se chegar aqui, o usuario digitou algum número não valido
 
 
 # Funções Placeholders, depois coloquem as suas partes aqui.
@@ -86,28 +86,28 @@ insercao:
 	# $t5 = nó criado
 	# $t6 = endereco do no anterior
 
-	li $v0, 4		 # imprimir string que pede valor
+	li $v0, 4				# imprimir string que pede valor
 	la $a0, strInsert
 	syscall			
 
-	jal leInt 		# inteiro lido em $v0
-	move $t0, $v0		# move inteiro lido para $t0
+	jal leInt 				# inteiro lido em $v0
+	move $t0, $v0			# move inteiro lido para $t0
 
 	#fazer mod
 	li $t2, 16
-	div $t0, $t2		# $t0/16
-	mfhi $t1 		# $t1 = $t0 % 16
+	div $t0, $t2			# $t0/16
+	mfhi $t1 				# $t1 = $t0 % 16
 	
 	#acessar posicao do vetor
 	move $t3, $s0
-	mul $t1, $t1, 4 	# quantidade de bytes de deslocamento até a posicao desejada
+	mul $t1, $t1, 4 		# quantidade de bytes de deslocamento até a posicao desejada
 	
-	add $t3, $t3, $t1 	# posicao de insercao
+	add $t3, $t3, $t1 		# posicao de insercao
 	lw $t4, 0($t3)
 
 	#percorrer lista
-	addi $t4, $t4, 4	# pega valor do no
-	lw $t4, 0($t4)		# t4 = nó
+	addi $t4, $t4, 4		# pega valor do no
+	lw $t4, 0($t4)			# t4 = nó
 
 	findPlace:
 		blt $t4, $zero, found 	# while no->valor >= 0
@@ -122,50 +122,50 @@ insercao:
 
 	# inserção válida
 	# criar novo nó
-	li $v0, 9			# sbrk
-	li $a0, 12			# 12 = no anterior(end = 4) + inteiro(word = 4) + proximo no(end = 4)
-	syscall				# $v0 = malloc(sizeof(nó))
+	li $v0, 9				# sbrk
+	li $a0, 12				# 12 = no anterior(end = 4) + inteiro(word = 4) + proximo no(end = 4)
+	syscall					# $v0 = malloc(sizeof(nó))
 
-	move $t5, $v0		# t5 = novo_no
+	move $t5, $v0			# t5 = novo_no
 	
 	#atribuir valor ao nó
 	sw $t0, 4($t5)
 		
 	#apontar da forma correta
-	lw $t6, 0($t3) 		#$t6 eh o no anterior
+	lw $t6, 0($t3) 			#$t6 eh o no anterior
 		
-	sw $t5, 0($t3) 		#aponta #t3 para novo_no
-	sw $t5, 8($t6) 		#aponta anterior para novo_no
-	sw $t3, 8($t5) 		#aponta novo_no para $t3
-	sw $t6, 0($t5) 		#aponta novo_no para anterior
+	sw $t5, 0($t3) 			# aponta #t3 para novo_no
+	sw $t5, 8($t6) 			# aponta anterior para novo_no
+	sw $t3, 8($t5) 			# aponta novo_no para $t3
+	sw $t6, 0($t5) 			# aponta novo_no para anterior
 
 	j menu
 
 remocao:
-	li $v0, 4 		# Imprimir string que pede valor
+	li $v0, 4 				# Imprimir string que pede valor
 	la $a0, strRemove
 	syscall
 	
-	jal leInt 		# $v0 = int(input())
-	move $t0, $v0		# $t0 = $v0
+	jal leInt 				# $v0 = int(input())
+	move $t0, $v0			# $t0 = $v0
 	blt $t0, $zero, removeError
 	
 	# Fazer mod
 	li $t2, 16
-	div $t0, $t2		# $t0/16
-	mfhi $t1 		# $t1 = $t0 % 16
+	div $t0, $t2			# $t0/16
+	mfhi $t1 				# $t1 = $t0 % 16
 	
-	li $t3, 4		# endereço = (end. do Hash) + 4 * mod
+	li $t3, 4				# endereço = (end. do Hash) + 4 * mod
 	move $t6, $s0	
 	mul $t1, $t1, $t3
 	add $t6, $t6, $t1
-	
-	lw $t6, 0($t6) 		# Acesse o end que contém o primeiro nó da lista
+		
+	lw $t6, 0($t6) 			# Acesse o end que contém o primeiro nó da lista
 	
 searchRemocao:
-	lw $a0, 0($t6)	# $a0 (previous)
-	lw $t0, 4($t6)	# $t0 (current)
-	lw $a1, 8($t6)	# $a1 (next)
+	lw $a0, 0($t6)			# $a0 (previous)
+	lw $t0, 4($t6)			# $t0 (current)
+	lw $a1, 8($t6)			# $a1 (next)
 	
 	# DEBUG - PRINT INT
 	# move $t7, $v0
@@ -181,14 +181,14 @@ searchRemocao:
 	beq $t0, $v0, movePointersRemocao # Se achar, remova-o
 	beq $a1, $zero, removeError	  # Caso a lista acabe e não tenha achado, imprima uma menssagem de erro
 	
-	move $t6, $a1			  # Continue a procurar na lista
+	move $t6, $a1			 # Continue a procurar na lista
 	j searchRemocao
 	
 movePointersRemocao:
 	beq $a1, $zero, lastElementRemocao
 	
-	sw $a0, 0($a1)	# o anterior do próximo recebe o anterior do atual
-	sw $a1, 8($a0)	# o próximo do anterior recebe o próximo do atual
+	sw $a0, 0($a1)			# o anterior do próximo recebe o anterior do atual
+	sw $a1, 8($a0)			# o próximo do anterior recebe o próximo do atual
 	
 	j menu
 	
@@ -206,23 +206,23 @@ impressao:
 	# t3 = no_atual->valor
 	
 	move $t0, $s0			# t0 = vetor[0]
-	li $t1, 0			# i = 0
-	li $v0, 4			# print string
+	li $t1, 0				# i = 0
+	li $v0, 4				# print string
 	la $a0, strInicioImpressao
-	syscall				# printf("\nImpressão da Tabela Hash\n")
+	syscall					# printf("\nImpressão da Tabela Hash\n")
 	
 # Percorremos a cada posicao (0 à 15) do vetor
 forLoopImpressao:
 	bge $t1, 16, fimImpressao	# while (i < 16)
 	lw $t2, 0($t0)			# t2 = vetor[i] = no_atual
 					
-	li $v0, 4			# printf("Linha[%d]", i)
+	li $v0, 4				# printf("Linha[%d]", i)
 	la $a0, strInicioLinhaImpressao
 	syscall				
-	li $v0, 1			# print int
+	li $v0, 1				# print int
 	move $a0, $t1			# t1 = posicao atual do vetor
-	syscall
-	li $v0, 4			# print string
+	syscall	
+	li $v0, 4				# print string
 	la $a0, strFimLinhaImpressao
 	syscall				
 	
@@ -230,24 +230,25 @@ forLoopImpressao:
 	LoopImpressaoNo:
 		lw $t3, 4($t2)		# t2 = valor da lista duplamente encadeada
 		beq $t3, -1, endLinhaImpressao # while (t2 != -1)
-		li $v0, 1		# print int
+		li $v0, 1			# print int
 		move $a0, $t3		
-		syscall			# printf("%d", no->valor)
+		syscall				# printf("%d", no->valor)
 		lw $t2, 8($t2)		# t0 = t0->proximo_nó
 		j LoopImpressaoNo	# Vamos para o próximo nó
 	j forLoopImpressao
 	
 endLinhaImpressao:
-	li $v0, 4		# imprimimos um "\n"
-	la $a0, strNewline	# print string
+	li $v0, 4				# imprimimos um "\n"
+	la $a0, strNewline		# print string
 	syscall
-				# atualizamos o próximo nó
-	addi $t1, $t1, 1	# i++
-	addi $t0, $t0, 4	# t0 tem o endereco do próximo nó
-	j forLoopImpressao	# voltamos para imprimir a próxima linha da Hash.
+	
+	# atualizamos o próximo nó
+	addi $t1, $t1, 1		# i++
+	addi $t0, $t0, 4		# t0 tem o endereco do próximo nó
+	j forLoopImpressao		# voltamos para imprimir a próxima linha da Hash.
 	
 fimImpressao:
-	li $v0, 4			# print string
+	li $v0, 4				# print string
 	la $a0, strFimImpressao
 	syscall
 	j menu
@@ -255,31 +256,31 @@ fimImpressao:
 #=============UTILS==============#
 
 endProgram:
-	li $v0, 4			# imprime string
+	li $v0, 4				# imprime string
 	la $a0, strExit
 	syscall
-	li $v0, 10			# exit
+	li $v0, 10				# exit
 	syscall
 
 insertError:
-	li $v0, 4			# imprime string
+	li $v0, 4				# imprime string
 	la $a0, strInsertError
 	syscall
-	j menu				# voltamos ao menu
-
+	j menu					# voltamos ao menu
+	
 removeError:
-	li $v0, 4			# imprime string
+	li $v0, 4				# imprime string
 	la $a0, strRemoveError
 	syscall
 	j menu		
 	
 invalidInput:
-	li $v0, 4			# imprime string
+	li $v0, 4				# imprime string
 	la $a0, strInvalidInput
 	syscall
-	j menu				# voltamos ao menu
+	j menu					# voltamos ao menu
 
-leInt:					# lê um inteiro que fica em $v0.
-	li $v0, 5			# lê inteiro
+leInt:						# lê um inteiro que fica em $v0.
+	li $v0, 5				# lê inteiro
 	syscall
 	jr $ra
