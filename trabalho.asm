@@ -4,6 +4,7 @@
 .data
 .align 0
 	strNewline:	.asciiz "\n"
+	strSpace:	.asciiz " "
 	strInsert:	.asciiz "\nDigite o valor a ser inserido: "
 	strRemove:	.asciiz "\nDigite o valor a ser removido: "
 	strInicio:	.asciiz "Tabela Hash de inteiros implementada em MIPS Assembly.\n"
@@ -243,6 +244,9 @@ forLoopImpressao:
 		li $v0, 1			# print int
 		move $a0, $t3		
 		syscall				# printf("%d", no->valor)
+		li $v0, 4			# printf string
+		la $a0, strSpace
+		syscall				# printf(" ")
 		lw $t2, 8($t2)		# t2 = t2->proximo_nó
 		j LoopImpressaoNo	# Vamos para o próximo nó
 	j forLoopImpressao
