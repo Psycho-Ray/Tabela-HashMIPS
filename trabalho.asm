@@ -13,7 +13,7 @@
 	strFimLinhaImpressao:	.asciiz "]: "
 	strLinhaVaziaImpressao:	.asciiz " **Linha Vazia**"
 	strFimImpressao: .asciiz "Fim da impressão, voltando ao menu\n"
-	strInvalidInput: .asciiz "Opçãoo não válida digitada, favor digitar um inteiro de 1 a 5 conforme as opções fornecidas.\n"
+	strInvalidInput: .asciiz "Entrada inválida\n"
 	strExit:.asciiz "Finalizando programa\n"
 	strInsertError: .asciiz "O número digitado já foi inserido.\n"
 	strRemoveError: .asciiz "Não foi possível remover o número. Entrada inválida ou não existente na tabela Hash. \n"
@@ -92,6 +92,9 @@ insercao:
 
 	jal leInt 				# inteiro lido em $v0
 	move $t0, $v0			# move inteiro lido para $t0
+	
+	# verifica se o inteiro digitado é positivo
+	blt $t0, $zero, invalidInput
 
 	#fazer mod
 	li $t2, 16
