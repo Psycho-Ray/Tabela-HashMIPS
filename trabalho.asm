@@ -17,6 +17,19 @@
 	strExit:.asciiz "Finalizando programa\n"
 	strInsertError: .asciiz "O número digitado já foi inserido.\n"
 	
+#Search Strings
+	strSearchQuerry:
+		.asciiz "Digite a chave a ser consultada ou -1 para retornar: "
+	strSearchNotFound:
+		.asciiz "Chave não encontrada\n"
+	strSearchFound0:
+		.asciiz "Chave encontrada na "
+	strSearchFound1:
+		.asciiz "a posicao na hash, "
+	strSearchNotFound2:
+		.asciiz "a posicao na lista\n"
+	strInvalidSearch:
+		.asciiz "Chave inválida. Retornando ao menu.\n"
 
 .text
 .globl main
@@ -67,7 +80,7 @@ menu:
 
 	beq $s1, +1, insercao
 	beq $s1, +2, remocao
-	beq $s1, +3, busca
+	beq $s1, +3, Search
 	beq $s1, +4 impressao
 	beq $s1, +5, endProgram
 	j invalidInput		# se chegar aqui, o usuario digitou algum número não valido
@@ -145,9 +158,113 @@ remocao:
 	la $a0, strRemove
 	syscall
 	j menu
+	
+################################################
+Search:
+	#Search por Alex Sander R. Silva - 9779350
+	#s0 = &hash[0]
+	#t0 = key
+	#t1 = -1
+	#t2 = 16
+	#t3 = ptr
+	#t4 = value
+	#t5 = hashPos
+	#t6 = listPos
+	
+	#init
+	li $t1, -1	#t1 = -1
+	li $t2, 16	#t2 = 16
 
-busca:
+sNextQuerry:
+	#Print str SearchQuerry
+	li $v0, 4
+	la $a0, strSearchQuerry
+	syscall
+	
+	#Scan int key
+	li $v0, 5
+	syscall
+	
+	move $t0, $a0		#t0 = key
+	li $t6, 0		#t6 = listPos = 0
+	
+	#While key >= 0
+	blt $t0, $zero, sEndSearch
+		#hashPos = key % 16
+		div $t0, $t2
+		mfhi $t5
+		
+		#ptr = hash[hashPos] = (node *)
+		mul $t3, $t5, 4
+		add $t3, $t3, $s0
+		
+		#value = node->value
+		lw $t4, 4($t3)
+
+	sListSearch:
+		#While (value != -1 and value > key)
+		beq $t4, $t1, sEndListSearch
+		bgt $t4, $t0, sEndListSearch
+			#pos = node->next = (node *)
+			lw $t3, 8($t3)
+			
+			#value = node->value
+			lw $t4, 4($t3)
+			
+			#listPos++
+			addi, $t6, $t6, 1
+		j sListSearch
+		
+		
+	sEndListSearch:
+		#Value == key => Found
+		beq $t3, $t0, sFound
+	
+	sNotFound:
+		#Print str SearchNotFound
+		li $v0, 4
+		la $a0, strSearchNotFound
+		syscall
+		
+		j sNextQuerry
+	
+	sFound:
+		#Print str SearchFound0
+		li $v0, 4
+		la $a0, strSearchFound0
+		syscall
+		
+		#Print int hashPos
+		li $v0, 1
+		move $a0, $t5
+		syscall
+		
+		#Print str SearchFound1
+		li $v0, 4
+		la $a0, strSearchFound1
+		syscall
+		
+		#Print int listPos
+		li $v0, 1
+		move $a0, $t6
+		syscall
+		
+		#Print str SearchFound2
+		li $v0, 4
+		la $a0, strSearchFound2
+		syscall
+
+sEndSearch:
+	#If key == -1 goto menu
+	beq $t0, $t2, menu
+	
+	#Print str InvalidSearch
+	li $v0, 4
+	la $a0, strInvalidSearch
+	syscall
+	
 	j menu
+################################################
 
 impressao:
 	# $t0 = posição atual no vetor
