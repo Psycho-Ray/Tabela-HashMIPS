@@ -153,58 +153,53 @@ insercao:
 	j menu
 
 remocao:
-	li $v0, 4 				# Imprimir string que pede valor
+	li $v0, 4 			# Imprimir string que pede valor
 	la $a0, strRemove
 	syscall
 	
-	jal leInt 				# $v0 = int(input())
+	jal leInt 			# $v0 = int(input())
 	move $t0, $v0			# $t0 = $v0
 	blt $t0, $zero, removeError
 	
 	# Fazer mod
 	li $t2, 16
 	div $t0, $t2			# $t0/16
-	mfhi $t1 				# $t1 = $t0 % 16
+	mfhi $t1 			# $t1 = $t0 % 16
 	
-	li $t3, 4				# endereço = (end. do Hash) + 4 * mod
+	li $t3, 4			# endereço = (end. do Hash) + 4 * mod
 	move $t6, $s0	
 	mul $t1, $t1, $t3
 	add $t6, $t6, $t1
-		
+	
 	lw $t6, 0($t6) 			# Acesse o end que contém o primeiro nó da lista
+	li $t7, -1
 	
 searchRemocao:
 	lw $a0, 0($t6)			# $a0 (previous)
 	lw $t0, 4($t6)			# $t0 (current)
 	lw $a1, 8($t6)			# $a1 (next)
 	
-	# DEBUG - PRINT INT
-	# move $t7, $v0
-	# move $t8, $a0
-	
-	# li $v0, 1
-	# move $a0, $t0
-	# syscall
-	
-	# move $a0, $t8
-	# move $v0, $t7
-	
 	beq $t0, $v0, movePointersRemocao # Se achar, remova-o
-	beq $a1, $zero, removeError	  # Caso a lista acabe e não tenha achado, imprima uma menssagem de erro
+	beq $t0, $t7, removeError	  # Caso a lista acabe e não tenha achado, imprima uma menssagem de erro
 	
 	move $t6, $a1			 # Continue a procurar na lista
 	j searchRemocao
 	
 movePointersRemocao:
-	beq $a1, $zero, lastElementRemocao
+	beq $a0, $zero, firstElementRemocao
 	
 	sw $a0, 0($a1)			# o anterior do próximo recebe o anterior do atual
 	sw $a1, 8($a0)			# o próximo do anterior recebe o próximo do atual
 	
 	j menu
 	
-lastElementRemocao:
-	sw $zero, 8($a0)
+firstElementRemocao:
+	lw $t7, 4($a1)			# Caso seja o primeiro, copie parte do próximo elemento
+	lw $t8, 8($a1)			# para ele (o valor e o ponteiro para o próximo nó. 
+					# O ponteiro anterior continua o mesmo)
+	sw $t7, 4($t6)
+	sw $t8, 8($t6)
+	
 	j menu
 
 busca:
